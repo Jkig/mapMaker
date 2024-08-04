@@ -1,25 +1,29 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import Plotly from 'plotly';
+// import Plotly from 'plotly';
+import Plot from 'react-plotly.js';
 //import Papa from 'papaparse';
 import popData from './popData.json'
 
 
 function App() {
 
+  const [plotData, setPlotData] = useState([]);
+  const [layout, setLayout] = useState({});
+
   useEffect(() => {
-    // console.log(popData);
     let cleanerData = {
       code: [],
       pop: []
     }
-    for (let i=0; i<265;i++){
-      cleanerData.code.push(popData[2+i]['World Development Indicators'])
-      cleanerData.pop.push(popData[2+i]['null'][64])
+    for (let i = 0; i < 265; i++) {
+      if (popData[2 + i]['null'][64] < 1500000000) {
+        cleanerData.code.push(popData[2 + i]['World Development Indicators'])
+        cleanerData.pop.push(popData[2 + i]['null'][64])
+      }
     }
-    // console.log(cleanerData)
 
-    const plotData = [{
+    const data = [{
       type: 'choropleth',
       locations: cleanerData.code,
       z: cleanerData.pop,
@@ -36,21 +40,28 @@ function App() {
       }
     }];
 
-    // Define the layout
     const layout = {
       geo: {
         scope: 'world'
       }
     };
-    // Create the plot
-    Plotly.newPlot('mapDiv', plotData, layout);
-  }, []);
 
+    setPlotData(data);
+    setLayout(layout);
+  }, []);
 
   return (
     <>
       Hello world
-      <div id='mapDiv'></div>
+      <Plot
+        data={plotData}
+        layout={layout}
+        style={{ width: "100%", height: "100%" }}
+      />
+      <p>display the different color pallets and let user choose</p>
+      <p>year slider for which year, rerender when it updates</p>
+      <p>select area</p>
+      <p>choose dataset, perhaps usa only</p>
     </>
   )
 }
